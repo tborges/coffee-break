@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Lightweight CLI to schedule coffee breaks at a fixed interval.",
   "bin": {
     "coffee-time": "./bin/coffee-time.js"
