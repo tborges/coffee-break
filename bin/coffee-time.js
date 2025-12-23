@@ -140,7 +140,7 @@ function startLoop(intervalMinutes, options = {}) {
 
   const logStatus = () => {
     const remaining = nextTime - Date.now();
-    const message = `⏳ Next break in ${formatRemaining(remaining)}`;
+    const message = `⏰ Next break in ${formatRemaining(remaining)}`;
     const paddedMessage = message.padEnd(statusLength, ' ');
     process.stdout.write(`\r${paddedMessage}`);
     statusLength = message.length;
