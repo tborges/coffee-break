@@ -102,6 +102,12 @@ function formatRemaining(remainingMs) {
   return `${minutes} ${unit}`;
 }
 
+function supportsEmoji() {
+  return process.env.TERM_PROGRAM === 'Apple_Terminal'
+    || Boolean(process.env.WT_SESSION)
+    || process.env.TERM_PROGRAM === 'vscode';
+}
+
 function printCoffeeArt() {
   const frames = [
     [
@@ -174,6 +180,7 @@ function startLoop(intervalMinutes, options = {}) {
   let statusLength = 0;
   let statusActive = false;
   let stopCoffeeArt = () => {};
+  const clock = supportsEmoji() ? '⏰' : '[next]';
 
   const logLine = (message) => {
     if (statusActive) {
@@ -196,7 +203,7 @@ function startLoop(intervalMinutes, options = {}) {
 
   const logStatus = () => {
     const remaining = nextTime - Date.now();
-    const message = `&#9200; Next break in ${formatRemaining(remaining)}`;
+    const message = `${clock} Next break in ${formatRemaining(remaining)}`;
     const paddedMessage = message.padEnd(statusLength, ' ');
     process.stdout.write(`\r${paddedMessage}`);
     statusLength = message.length;
