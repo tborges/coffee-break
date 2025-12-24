@@ -211,6 +211,7 @@ function startLoop(intervalMinutes, options = {}) {
   let timeoutId = null;
   let statusIntervalId = null;
   let statusTimeoutId = null;
+  let initialStatusTimeoutId = null;
 
   const logStatus = () => {
     const remaining = nextTime - Date.now();
@@ -236,6 +237,10 @@ function startLoop(intervalMinutes, options = {}) {
   scheduleNext();
 
   if (showStatus) {
+    initialStatusTimeoutId = setTimeout(() => {
+      logStatus();
+    }, 4000);
+
     const elapsed = Date.now() - startedAt;
     const firstDelay = Math.max(0, 60 * 1000 - (elapsed % (60 * 1000)));
 
@@ -254,6 +259,9 @@ function startLoop(intervalMinutes, options = {}) {
     }
     if (statusIntervalId) {
       clearInterval(statusIntervalId);
+    }
+    if (initialStatusTimeoutId) {
+      clearTimeout(initialStatusTimeoutId);
     }
     if (stopCoffeeArt) {
       stopCoffeeArt();
