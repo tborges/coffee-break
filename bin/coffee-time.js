@@ -105,7 +105,8 @@ function formatRemaining(remainingMs) {
 function supportsEmoji() {
   return process.env.TERM_PROGRAM === 'Apple_Terminal'
     || Boolean(process.env.WT_SESSION)
-    || process.env.TERM_PROGRAM === 'vscode';
+    || process.env.TERM_PROGRAM === 'vscode'
+    || process.platform === 'win32';
 }
 
 function printCoffeeArt() {
