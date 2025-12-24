@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { spawn } = require('child_process');
+const os = require('os');
 
 const USAGE_ERROR = 2;
 
@@ -102,11 +103,23 @@ function formatRemaining(remainingMs) {
   return `${minutes} ${unit}`;
 }
 
+function isWindowsLike() {
+  return process.platform === 'win32'
+    || /microsoft/i.test(os.release());
+}
+
 function supportsEmoji() {
+  if (process.env.COFFEE_TIME_FORCE_ASCII === '1') {
+    return false;
+  }
+  if (process.env.COFFEE_TIME_FORCE_EMOJI === '1') {
+    return true;
+  }
+
   return process.env.TERM_PROGRAM === 'Apple_Terminal'
     || Boolean(process.env.WT_SESSION)
     || process.env.TERM_PROGRAM === 'vscode'
-    || process.platform === 'win32';
+    || isWindowsLike();
 }
 
 function printCoffeeArt() {
