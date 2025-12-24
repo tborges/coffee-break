@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { spawn } = require('child_process');
+const os = require('os');
 
 const USAGE_ERROR = 2;
 
@@ -102,6 +103,22 @@ function formatRemaining(remainingMs) {
   return `${minutes} ${unit}`;
 }
 
+function supportsEmoji() {
+  if (process.env.COFFEE_TIME_FORCE_ASCII === '1') {
+    return false;
+  }
+  if (process.env.COFFEE_TIME_FORCE_EMOJI === '1') {
+    return true;
+  }
+
+  const isWsl = /microsoft/i.test(os.release());
+
+  return process.env.TERM_PROGRAM === 'Apple_Terminal'
+    || process.env.TERM_PROGRAM === 'vscode'
+    || Boolean(process.env.WT_SESSION)
+    || isWsl;
+}
+
 function printCoffeeArt() {
   const frames = [
     [
@@ -174,6 +191,7 @@ function startLoop(intervalMinutes, options = {}) {
   let statusLength = 0;
   let statusActive = false;
   let stopCoffeeArt = () => {};
+  const clock = supportsEmoji() ? '⏰' : '[next]';
 
   const logLine = (message) => {
     if (statusActive) {
@@ -193,10 +211,11 @@ function startLoop(intervalMinutes, options = {}) {
   let timeoutId = null;
   let statusIntervalId = null;
   let statusTimeoutId = null;
+  let initialStatusTimeoutId = null;
 
   const logStatus = () => {
     const remaining = nextTime - Date.now();
-    const message = `&#9200; Next break in ${formatRemaining(remaining)}`;
+    const message = `${clock} Next break in ${formatRemaining(remaining)}`;
     const paddedMessage = message.padEnd(statusLength, ' ');
     process.stdout.write(`\r${paddedMessage}`);
     statusLength = message.length;
@@ -218,6 +237,10 @@ function startLoop(intervalMinutes, options = {}) {
   scheduleNext();
 
   if (showStatus) {
+    initialStatusTimeoutId = setTimeout(() => {
+      logStatus();
+    }, 4000);
+
     const elapsed = Date.now() - startedAt;
     const firstDelay = Math.max(0, 60 * 1000 - (elapsed % (60 * 1000)));
 
@@ -236,6 +259,9 @@ function startLoop(intervalMinutes, options = {}) {
     }
     if (statusIntervalId) {
       clearInterval(statusIntervalId);
+    }
+    if (initialStatusTimeoutId) {
+      clearTimeout(initialStatusTimeoutId);
     }
     if (stopCoffeeArt) {
       stopCoffeeArt();
